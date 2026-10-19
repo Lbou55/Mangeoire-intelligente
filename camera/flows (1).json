@@ -1,0 +1,162 @@
+[
+    {
+        "id": "tab_cam",
+        "type": "tab",
+        "label": "ESP32-CAM",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "in_up",
+        "type": "http in",
+        "z": "tab_cam",
+        "name": "POST /upload",
+        "url": "/upload",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "fn_save"
+            ]
+        ]
+    },
+    {
+        "id": "fn_save",
+        "type": "function",
+        "z": "tab_cam",
+        "name": "nom + garder derniere",
+        "func": "// Dossier de sauvegarde (chemin relatif au dossier ou Node-RED est lance).\n// Tu peux mettre un chemin absolu, ex: 'C:/photos/' ou '/home/pi/photos/'\nconst DOSSIER = 'photos/';\n\nconst nom = msg.req.headers['x-filename'] || ('photo_' + Date.now() + '.jpg');\nconst horodatage = new Date().toISOString().replace(/[:.]/g, '-');\n\nmsg.filename = DOSSIER + horodatage + '_' + nom;\nflow.set('last', msg.payload);   // pour GET /last\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "file_w",
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "file_w",
+        "type": "file",
+        "z": "tab_cam",
+        "name": "ecrire la photo",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 580,
+        "y": 60,
+        "wires": [
+            [
+                "fn_ok"
+            ]
+        ]
+    },
+    {
+        "id": "fn_ok",
+        "type": "function",
+        "z": "tab_cam",
+        "name": "reponse OK",
+        "func": "msg.payload = 'OK';\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 60,
+        "wires": [
+            [
+                "resp_up"
+            ]
+        ]
+    },
+    {
+        "id": "resp_up",
+        "type": "http response",
+        "z": "tab_cam",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 950,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "z": "tab_cam",
+        "name": "photo recue",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "filename",
+        "statusType": "msg",
+        "x": 590,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "in_last",
+        "type": "http in",
+        "z": "tab_cam",
+        "name": "GET /last",
+        "url": "/last",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 220,
+        "wires": [
+            [
+                "fn_last"
+            ]
+        ]
+    },
+    {
+        "id": "fn_last",
+        "type": "function",
+        "z": "tab_cam",
+        "name": "derniere photo",
+        "func": "const img = flow.get('last');\nif (!img) {\n    msg.statusCode = 404;\n    msg.payload = 'aucune photo';\n    return msg;\n}\nmsg.payload = img;\nmsg.statusCode = 200;\nmsg.headers = { 'Content-Type': 'image/jpeg' };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 220,
+        "wires": [
+            [
+                "resp_last"
+            ]
+        ]
+    },
+    {
+        "id": "resp_last",
+        "type": "http response",
+        "z": "tab_cam",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 530,
+        "y": 220,
+        "wires": []
+    }
+]

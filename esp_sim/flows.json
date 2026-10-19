@@ -1,0 +1,314 @@
+[
+    {
+        "id": "tab_mangeoire",
+        "type": "tab",
+        "label": "Mangeoire CoAP",
+        "disabled": false,
+        "info": "Reception CoAP des donnees de l'ESP32 (PC en test, Raspberry Pi en final)."
+    },
+    {
+        "id": "cmt1",
+        "type": "comment",
+        "z": "tab_mangeoire",
+        "name": "Prerequis : node-red-contrib-coap + UDP 5683 ouvert",
+        "info": "1) Menu > Manage palette > Install > node-red-contrib-coap\n2) Autoriser UDP 5683 (entrant) dans le pare-feu Windows\n3) Mettre l'IP de cette machine dans NODE_RED_IP du code ESP32\n4) Pour passer au Raspberry Pi : importer ce meme flow sur le Pi et changer l'IP dans l'ESP32",
+        "x": 260,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "resp",
+        "type": "coap response",
+        "z": "tab_mangeoire",
+        "name": "Reponse ACK",
+        "statusCode": "",
+        "contentFormat": "text/plain",
+        "x": 600,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "in_rfid",
+        "type": "coap in",
+        "z": "tab_mangeoire",
+        "method": "POST",
+        "name": "/rfid",
+        "server": "srv_coap",
+        "url": "/rfid",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "fn_rfid"
+            ]
+        ]
+    },
+    {
+        "id": "fn_rfid",
+        "type": "function",
+        "z": "tab_mangeoire",
+        "name": "JSON RFID",
+        "func": "// Reponse CoAP (ACK) + analyse du JSON recu sur /rfid\nconst rep = RED.util.cloneMessage(msg);\nrep.payload = \"OK\";\ntry {\n    msg.payload = JSON.parse(msg.payload.toString());\n} catch (e) {\n    node.warn(\"JSON invalide sur /rfid : \" + e.message);\n}\nmsg.topic = \"rfid\";\nreturn [msg, rep];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "dbg_rfid"
+            ],
+            [
+                "resp"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_rfid",
+        "type": "debug",
+        "z": "tab_mangeoire",
+        "name": "RFID",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "in_weight",
+        "type": "coap in",
+        "z": "tab_mangeoire",
+        "method": "POST",
+        "name": "/weight",
+        "server": "srv_coap",
+        "url": "/weight",
+        "x": 130,
+        "y": 170,
+        "wires": [
+            [
+                "fn_weight"
+            ]
+        ]
+    },
+    {
+        "id": "fn_weight",
+        "type": "function",
+        "z": "tab_mangeoire",
+        "name": "JSON POIDS",
+        "func": "// Reponse CoAP (ACK) + analyse du JSON recu sur /weight\nconst rep = RED.util.cloneMessage(msg);\nrep.payload = \"OK\";\ntry {\n    msg.payload = JSON.parse(msg.payload.toString());\n} catch (e) {\n    node.warn(\"JSON invalide sur /weight : \" + e.message);\n}\nmsg.topic = \"weight\";\nreturn [msg, rep];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 170,
+        "wires": [
+            [
+                "dbg_weight"
+            ],
+            [
+                "resp"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_weight",
+        "type": "debug",
+        "z": "tab_mangeoire",
+        "name": "POIDS",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 170,
+        "wires": []
+    },
+    {
+        "id": "in_visite",
+        "type": "coap in",
+        "z": "tab_mangeoire",
+        "method": "POST",
+        "name": "/visite",
+        "server": "srv_coap",
+        "url": "/visite",
+        "x": 130,
+        "y": 220,
+        "wires": [
+            [
+                "fn_visite"
+            ]
+        ]
+    },
+    {
+        "id": "fn_visite",
+        "type": "function",
+        "z": "tab_mangeoire",
+        "name": "JSON VISITE",
+        "func": "// Reponse CoAP (ACK) + analyse du JSON recu sur /visite\nconst rep = RED.util.cloneMessage(msg);\nrep.payload = \"OK\";\ntry {\n    msg.payload = JSON.parse(msg.payload.toString());\n} catch (e) {\n    node.warn(\"JSON invalide sur /visite : \" + e.message);\n}\nmsg.topic = \"visite\";\nreturn [msg, rep];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 220,
+        "wires": [
+            [
+                "dbg_visite"
+            ],
+            [
+                "resp"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_visite",
+        "type": "debug",
+        "z": "tab_mangeoire",
+        "name": "VISITE",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "in_alert",
+        "type": "coap in",
+        "z": "tab_mangeoire",
+        "method": "POST",
+        "name": "/alert",
+        "server": "srv_coap",
+        "url": "/alert",
+        "x": 130,
+        "y": 270,
+        "wires": [
+            [
+                "fn_alert"
+            ]
+        ]
+    },
+    {
+        "id": "fn_alert",
+        "type": "function",
+        "z": "tab_mangeoire",
+        "name": "JSON ALERTE",
+        "func": "// Reponse CoAP (ACK) + analyse du JSON recu sur /alert\nconst rep = RED.util.cloneMessage(msg);\nrep.payload = \"OK\";\ntry {\n    msg.payload = JSON.parse(msg.payload.toString());\n    node.warn(\"ALERTE \" + msg.payload.type + \" | tag=\" + msg.payload.tag_id + \" | vache presente=\" + msg.payload.vache_presente);\n} catch (e) {\n    node.warn(\"JSON invalide sur /alert : \" + e.message);\n}\nmsg.topic = \"alert\";\nreturn [msg, rep];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 270,
+        "wires": [
+            [
+                "dbg_alert"
+            ],
+            [
+                "resp"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_alert",
+        "type": "debug",
+        "z": "tab_mangeoire",
+        "name": "ALERTE",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 270,
+        "wires": []
+    },
+    {
+        "id": "in_servo",
+        "type": "coap in",
+        "z": "tab_mangeoire",
+        "method": "POST",
+        "name": "/servo",
+        "server": "srv_coap",
+        "url": "/servo",
+        "x": 130,
+        "y": 320,
+        "wires": [
+            [
+                "fn_servo"
+            ]
+        ]
+    },
+    {
+        "id": "fn_servo",
+        "type": "function",
+        "z": "tab_mangeoire",
+        "name": "JSON SERVO",
+        "func": "// Reponse CoAP (ACK) + analyse du JSON recu sur /servo\nconst rep = RED.util.cloneMessage(msg);\nrep.payload = \"OK\";\ntry {\n    msg.payload = JSON.parse(msg.payload.toString());\n} catch (e) {\n    node.warn(\"JSON invalide sur /servo : \" + e.message);\n}\nmsg.topic = \"servo\";\nreturn [msg, rep];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 320,
+        "wires": [
+            [
+                "dbg_servo"
+            ],
+            [
+                "resp"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_servo",
+        "type": "debug",
+        "z": "tab_mangeoire",
+        "name": "SERVO",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "srv_coap",
+        "type": "coap-server",
+        "name": "Serveur CoAP",
+        "port": "5683"
+    },
+    {
+        "id": "8139d862c9ee1e67",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-coap": "0.8.0"
+        }
+    }
+]
