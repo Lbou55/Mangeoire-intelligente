@@ -1,0 +1,26 @@
+# Local development: API + a TEST MongoDB on your PC.
+#   docker compose -f docker-compose.dev.yml up --build
+#   docker compose -f docker-compose.dev.yml exec api python seed.py
+# API docs: http://localhost:8000/docs
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports: ["27017:27017"]      # so you can also open it with MongoDB Compass
+    volumes: [mongo_data:/data/db]
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports: ["8000:8000"]
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: farm_test
+      SECRET_KEY: dev-secret-change-me
+      SERVICE_KEY: dev-service-key
+      AMQP_URL: ""              # RabbitMQ ingestion off on your PC
+    volumes: [./app:/code/app]  # edit the code, the server reloads by itself
+    depends_on: [mongo]
+volumes:
+  mongo_data:

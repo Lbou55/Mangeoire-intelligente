@@ -3,3 +3,6 @@ uvicorn[standard]
 aio-pika
 pymongo>=4.13
 pydantic-settings
+pydantic[email]
+pyjwt
+argon2-cffi
