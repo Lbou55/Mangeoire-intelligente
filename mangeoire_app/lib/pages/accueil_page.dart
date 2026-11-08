@@ -92,7 +92,7 @@ class AccueilPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 78),
+          const SizedBox(height: 92),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -183,7 +183,7 @@ class _CarteChiffre extends StatelessWidget {
     final p = Palette.of(context);
     final couleur = alerte ? p.alerte : p.primaire;
     return SizedBox(
-      height: 112,
+      height: 126,
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: decorationCarte(p, rayon: 20),

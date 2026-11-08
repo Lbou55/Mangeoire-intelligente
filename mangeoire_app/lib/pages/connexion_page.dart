@@ -2,6 +2,8 @@ import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../services/api.dart';
+import '../services/session.dart';
 import '../theme.dart';
 import '../widgets/bouton_theme.dart';
 import '../widgets/carte.dart';
@@ -17,13 +19,39 @@ class ConnexionPage extends StatefulWidget {
 }
 
 class _ConnexionPageState extends State<ConnexionPage> {
+  final _email = TextEditingController();
+  final _motDePasse = TextEditingController();
   bool _masquer = true;
+  bool _enCours = false;
+  String? _erreur;
 
-  void _entrer() {
-    // Pas de vraie vérification pour l'instant : on entre dans l'application.
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (context) => const AccueilShell()),
-    );
+  @override
+  void dispose() {
+    _email.dispose();
+    _motDePasse.dispose();
+    super.dispose();
+  }
+
+  Future<void> _entrer() async {
+    if (_email.text.trim().isEmpty || _motDePasse.text.isEmpty) {
+      setState(() => _erreur = 'Saisissez votre e-mail et votre mot de passe.');
+      return;
+    }
+    setState(() {
+      _enCours = true;
+      _erreur = null;
+    });
+    try {
+      await Session.instance.connexion(_email.text, _motDePasse.text);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (context) => const AccueilShell()),
+      );
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _erreur = e.message);
+    } finally {
+      if (mounted) setState(() => _enCours = false);
+    }
   }
 
   @override
@@ -66,6 +94,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                       ),
                       const SizedBox(height: 28),
                       TextField(
+                        controller: _email,
                         keyboardType: TextInputType.emailAddress,
                         decoration: decorationChamp(
                           p,
@@ -78,7 +107,9 @@ class _ConnexionPageState extends State<ConnexionPage> {
                       ),
                       const SizedBox(height: 14),
                       TextField(
+                        controller: _motDePasse,
                         obscureText: _masquer,
+                        onSubmitted: (_) => _entrer(),
                         decoration: decorationChamp(
                           p,
                           indice: 'Mot de passe',
@@ -96,10 +127,24 @@ class _ConnexionPageState extends State<ConnexionPage> {
                           ),
                         ),
                       ),
+                      if (_erreur != null) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          _erreur!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: p.danger, fontWeight: FontWeight.w600),
+                        ),
+                      ],
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: _entrer,
-                        child: const Text('Se connecter'),
+                        onPressed: _enCours ? null : _entrer,
+                        child: _enCours
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(strokeWidth: 2.5),
+                              )
+                            : const Text('Se connecter'),
                       ),
                       const SizedBox(height: 12),
                       Row(

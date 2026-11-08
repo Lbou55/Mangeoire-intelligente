@@ -26,3 +26,24 @@ String jourCourt(DateTime d) {
   const lettres = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
   return lettres[d.weekday - 1];
 }
+
+/// 6.3 -> "6h18"
+String fmtHeure(double h) {
+  final heures = h.floor();
+  final minutes = ((h - heures) * 60).round();
+  return '${heures}h${minutes.toString().padLeft(2, '0')}';
+}
+
+/// "Aujourd'hui 14:32", "Hier 09:05" ou "6 nov. 14:32"
+String quandFr(DateTime d) {
+  const mois = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  final hh = d.hour.toString().padLeft(2, '0');
+  final mm = d.minute.toString().padLeft(2, '0');
+  final maintenant = DateTime.now();
+  final auj = DateTime(maintenant.year, maintenant.month, maintenant.day);
+  final jour = DateTime(d.year, d.month, d.day);
+  final ecart = auj.difference(jour).inDays;
+  if (ecart == 0) return "Aujourd'hui $hh:$mm";
+  if (ecart == 1) return 'Hier $hh:$mm';
+  return '${d.day} ${mois[d.month - 1]} $hh:$mm';
+}

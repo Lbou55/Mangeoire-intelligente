@@ -12,6 +12,8 @@ class Palette {
     required this.surPrimaire,
     required this.alerte,
     required this.alerteClair,
+    required this.danger,
+    required this.dangerClair,
     required this.bordure,
     required this.ombre,
     required this.bandeau1,
@@ -27,6 +29,8 @@ class Palette {
   final Color surPrimaire;
   final Color alerte;
   final Color alerteClair;
+  final Color danger;
+  final Color dangerClair;
   final Color bordure;
   final Color ombre;
   final Color bandeau1;
@@ -42,6 +46,8 @@ class Palette {
     surPrimaire: Color(0xFFFFFFFF),
     alerte: Color(0xFFE8731A),
     alerteClair: Color(0xFFFDEBDD),
+    danger: Color(0xFFD92D3A),
+    dangerClair: Color(0xFFFBE4E6),
     bordure: Color(0xFFE3EAF5),
     ombre: Color(0x1F1B4FA6),
     bandeau1: Color(0xFF2F78E0),
@@ -58,6 +64,8 @@ class Palette {
     surPrimaire: Color(0xFF0B1424),
     alerte: Color(0xFFFF9A4D),
     alerteClair: Color(0xFF3A2616),
+    danger: Color(0xFFFF6B75),
+    dangerClair: Color(0xFF3F1B20),
     bordure: Color(0xFF22345A),
     ombre: Color(0x66000000),
     bandeau1: Color(0xFF2A5BB5),

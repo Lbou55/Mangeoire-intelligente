@@ -1,12 +1,14 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 
+import '../services/session.dart';
 import '../widgets/bouton_theme.dart';
 import '../widgets/ico.dart';
 import 'accueil_page.dart';
 import 'alertes_page.dart';
 import 'animaux_page.dart';
 import 'mangeoire_page.dart';
+import 'notifications_page.dart';
 import 'profil_page.dart';
 
 /// La structure de l'application : barre du haut, 5 onglets en bas.
@@ -19,6 +21,13 @@ class AccueilShell extends StatefulWidget {
 
 class _AccueilShellState extends State<AccueilShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ouvre la connexion "temps réel" pour recevoir les notifications.
+    Session.instance.demarrerNotifications();
+  }
 
   static const List<String> _titres = [
     'Accueil',
@@ -61,7 +70,29 @@ class _AccueilShellState extends State<AccueilShell> {
                   ),
                 ],
               ),
-              actions: const [BoutonTheme(), SizedBox(width: 8)],
+              actions: [
+                // La cloche : le nombre de notifications non lues est un "badge".
+                ValueListenableBuilder<int>(
+                  valueListenable: Session.instance.nonLus,
+                  builder: (context, nombre, _) {
+                    return IconButton(
+                      tooltip: 'Notifications',
+                      icon: Badge(
+                        isLabelVisible: nombre > 0,
+                        label: Text(nombre > 99 ? '99+' : '$nombre'),
+                        child: const Icon(Icons.notifications_none_rounded, size: 26),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(builder: (context) => const NotificationsPage()),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const BoutonTheme(),
+                const SizedBox(width: 8),
+              ],
             ),
             body: AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),

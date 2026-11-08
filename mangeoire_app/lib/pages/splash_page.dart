@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../services/session.dart';
+import 'accueil_shell.dart';
 import 'connexion_page.dart';
 
 /// Écran de démarrage : le logo apparaît, puis on passe à la connexion.
@@ -19,13 +21,18 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _continuer() async {
-    await Future.delayed(const Duration(milliseconds: 2600));
+    // On attend l'animation du logo ET la vérification du jeton enregistré.
+    final resultats = await Future.wait<bool>([
+      Future.delayed(const Duration(milliseconds: 2600), () => true),
+      Session.instance.restaurer(),
+    ]);
+    final dejaConnecte = resultats[1];
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 500),
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const ConnexionPage(),
+            dejaConnecte ? const AccueilShell() : const ConnexionPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
