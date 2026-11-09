@@ -134,7 +134,7 @@ class _SignalementPageState extends State<SignalementPage> {
                 opacity: 0.55,
                 child: OutlinedButton.icon(
                   onPressed: null,
-                  icon: const Icon(Icons.mic_none_rounded),
+                  icon: Image.asset( 'assets/icons/speaking.png', width: 50,height: 50,),
                   label: const Text('Message vocal · bientôt disponible'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),

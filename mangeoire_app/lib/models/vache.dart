@@ -1,3 +1,4 @@
+
 /// Les données qui viennent du serveur (vaches, signalements, notifications).
 
 enum Niveau { normal, alerte, danger }
@@ -13,7 +14,7 @@ Niveau niveauDe(String? s) {
   }
 }
 
-/// Les motifs proposés à l'agriculteur (le code part au serveur, le texte reste ici).
+/// Les motifs proposés à l'agriculteur.
 const Map<String, String> motifsAlerte = {
   'mange_moins': "Mange moins que d'habitude",
   'boite': 'Boite / marche difficilement',
@@ -22,6 +23,7 @@ const Map<String, String> motifsAlerte = {
   'toux': 'Toux ou respiration difficile',
   'autre': 'Autre',
 };
+
 const Map<String, String> motifsDanger = {
   ...motifsAlerte,
   'ne_leve_pas': 'Ne se lève pas',
@@ -30,8 +32,11 @@ const Map<String, String> motifsDanger = {
   'ballonnement': 'Ballonnement',
 };
 
-DateTime? _date(dynamic v) => v == null ? null : DateTime.parse(v as String).toLocal();
-double? _nombre(dynamic v) => v == null ? null : (v as num).toDouble();
+DateTime? _date(dynamic v) =>
+    v == null ? null : DateTime.parse(v as String).toLocal();
+
+double? _nombre(dynamic v) =>
+    v == null ? null : (v as num).toDouble();
 
 /// Les mesures du jour envoyées par l'ESP32.
 class Mesure {
@@ -62,25 +67,37 @@ class Mesure {
 
 class Vache {
   Vache(Map<String, dynamic> j)
-      : tag = j['tag'] as String,
+      : tag = (j['tag'] ?? '').toString(),
+        displayId = (j['display_id'] ?? j['id'] ?? '').toString(),
         nom = (j['name'] as String?) ?? '',
         type = (j['type'] as String?) ?? 'laitiere',
         ageMois = _nombre(j['age_months']),
         niveau = niveauDe(j['status'] as String?),
         archivee = (j['archived'] as bool?) ?? false,
-        mesure = j['latest'] == null ? null : Mesure(j['latest'] as Map<String, dynamic>);
+        mesure = j['latest'] == null
+            ? null
+            : Mesure(j['latest'] as Map<String, dynamic>);
 
+  /// RFID : conservé pour les appels API et les identifiants internes.
   final String tag;
+
+  /// Identifiant public affiché dans l'application : C1, C2, C3...
+  final String displayId;
+
   final String nom;
-  final String type; // 'laitiere' ou 'viande'
+  final String type;
   final double? ageMois;
   final Niveau niveau;
   final bool archivee;
   final Mesure? mesure;
 
-  String get titre => nom.isEmpty ? tag : nom;
+  String get titre =>
+      displayId.isNotEmpty ? displayId : 'Identifiant indisponible';
+
   String get typeFr => type == 'viande' ? 'Viande' : 'Laitière';
-  String get ageFr => ageMois == null ? '—' : '${ageMois!.round()} mois';
+
+  String get ageFr =>
+      ageMois == null ? '—' : '${ageMois!.round()} mois';
 }
 
 class MessageSig {
@@ -106,11 +123,18 @@ class Signalement {
         note = (j['note'] as String?) ?? '',
         auteur = j['author_name'] as String,
         creeLe = _date(j['created_at'])!,
-        messages = [for (final m in (j['replies'] as List)) MessageSig(m as Map<String, dynamic>)],
-        veterinaireAppele = j['vet'] == null ? null : (j['vet']['called'] as bool),
-        veterinaireLe = j['vet'] == null ? null : _date(j['vet']['at']),
-        luParProprio = _date((j['seen'] as Map?)?['owner_seen_at']),
-        luParAgriculteur = _date((j['seen'] as Map?)?['farmer_seen_at']);
+        messages = [
+          for (final m in (j['replies'] as List))
+            MessageSig(m as Map<String, dynamic>)
+        ],
+        veterinaireAppele =
+            j['vet'] == null ? null : (j['vet']['called'] as bool),
+        veterinaireLe =
+            j['vet'] == null ? null : _date(j['vet']['at']),
+        luParProprio =
+            _date((j['seen'] as Map?)?['owner_seen_at']),
+        luParAgriculteur =
+            _date((j['seen'] as Map?)?['farmer_seen_at']);
 
   final String id;
   final String vacheTag;
@@ -121,12 +145,13 @@ class Signalement {
   final String auteur;
   final DateTime creeLe;
   final List<MessageSig> messages;
-  final bool? veterinaireAppele; // null = pas encore décidé
+  final bool? veterinaireAppele;
   final DateTime? veterinaireLe;
-  final DateTime? luParProprio; // accusé de lecture
+  final DateTime? luParProprio;
   final DateTime? luParAgriculteur;
 
-  String get vacheTitre => vacheNom.isEmpty ? vacheTag : vacheNom;
+  String get vacheTitre =>
+      vacheNom.isEmpty ? vacheTag : vacheNom;
 }
 
 class Notif {

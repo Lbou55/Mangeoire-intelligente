@@ -133,7 +133,12 @@ class _ProfilPageState extends State<ProfilPage> {
             ),
           ),
           const SizedBox(height: 16),
-          _LigneMenu(icone: 'password_lock', libelle: 'Changer mon mot de passe', onTap: _changerMotDePasse),
+          if (_s.estProprietaire)
+      _LigneMenu(
+    icone: 'password_lock',
+    libelle: 'Changer mon mot de passe',
+    onTap: _changerMotDePasse,
+  ),
           if (_s.estProprietaire) ...[
             const SizedBox(height: 12),
             _LigneMenu(
