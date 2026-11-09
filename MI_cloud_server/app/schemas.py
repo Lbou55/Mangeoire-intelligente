@@ -1,3 +1,4 @@
+
 from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
@@ -18,7 +19,11 @@ class LoginIn(BaseModel):
 
 
 class FarmerIn(RegisterIn):
-    pass
+    address: str = Field(default="", max_length=250)
+
+
+class FarmerUpdate(BaseModel):
+    address: str = Field(default="", max_length=250)
 
 
 class PasswordChangeIn(BaseModel):
@@ -49,7 +54,6 @@ class CowUpdate(BaseModel):
 
 
 class StatusIn(BaseModel):
-    """Send EITHER status directly, OR the AI verdict (alert + p_flagged)."""
     status: Optional[Level] = None
     alert: Optional[bool] = None
     p_flagged: Optional[float] = None
