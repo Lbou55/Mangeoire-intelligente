@@ -1,0 +1,7 @@
+# Optional: only needed for GET /predict/{cow_id} (LightGBM regression).
+# Not installed by default on the free Render plan (512 MB RAM).
+-r requirements.txt
+lightgbm>=4.3
+pandas>=2.2
+scikit-learn>=1.4
+joblib>=1.4
