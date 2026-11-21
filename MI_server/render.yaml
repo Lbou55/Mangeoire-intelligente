@@ -3,6 +3,7 @@ services:
     name: mangeoire-server
     runtime: python
     plan: free
+    rootDir: MI_server  # 👈 THIS IS THE FIX
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
