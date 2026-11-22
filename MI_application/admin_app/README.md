@@ -21,7 +21,7 @@ et `android/app/src/main/kotlin/tn/isetbizerte/mangeoire_admin/` (MainActivity.k
 ```bash
 cd mangeoire_admin
 flutter pub get
-flutter run --dart-define=API_BASE_URL=https://VOTRE-SERVEUR.onrender.com
+flutter run --dart-define=API_BASE_URL=https://mangeoire-server.onrender.com
 ```
 (ou modifier la valeur par défaut dans `lib/core/config.dart`).
 
