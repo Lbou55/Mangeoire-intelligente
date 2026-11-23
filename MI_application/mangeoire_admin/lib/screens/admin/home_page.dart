@@ -20,21 +20,29 @@ class _HomeData {
   final List<Feeder> feeders;
 }
 
+Future<List<Feeder>> _loadFeeders(FarmApi api) async {
+  try {
+    return await api.feeders();
+  } catch (_) {
+    return const [];
+  }
+}
+
 Future<_HomeData> _loadHome() async {
   final api = FarmApi.instance;
+  final feedersFuture = _loadFeeders(api);
   final results = await Future.wait<Object>([
     api.cows(),
     api.appetiteByCow(),
     api.eleveurs(),
     api.alerts(status: 'unread', limit: 100),
-    api.feeders(),
   ]);
   return _HomeData(
     results[0] as List<Cow>,
     results[1] as Map<String, Appetite?>,
     (results[2] as List<Eleveur>).length,
     (results[3] as List<AlertItem>).length,
-    results[4] as List<Feeder>,
+    await feedersFuture,
   );
 }
 
@@ -127,31 +135,27 @@ class HomePage extends StatelessWidget {
                   ),
               ]),
             ).stagger(5),
-            SectionTitle(context.t('feeders')),
-            CarteDouce(
-              onTap: onOpenFeeders,
-              child: d.feeders.isEmpty
-                  ? Row(children: [
-                      Ico('nav_feeder', taille: 30, couleur: p.primaire),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(context.t('no_feeders'), style: TextStyle(color: p.texte2))),
-                    ])
-                  : Row(children: [
-                      Ico('nav_feeder', taille: 30, couleur: d.feeders.first.status == 'critical'
+            if (d.feeders.isNotEmpty) ...[
+              SectionTitle(context.t('feeders')),
+              CarteDouce(
+                onTap: onOpenFeeders,
+                child: Row(children: [
+                  Ico('nav_feeder', taille: 30, couleur: d.feeders.first.status == 'critical'
                           ? p.danger
                           : d.feeders.first.status == 'low'
                               ? p.alerte
                               : p.succes),
-                      const SizedBox(width: 12),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(d.feeders.first.name,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                        Text('${d.feeders.first.levelPct.toStringAsFixed(1)}%',
-                            style: TextStyle(color: p.texte2)),
-                      ])),
-                      const Icon(Icons.chevron_right),
-                    ]),
-            ).stagger(5),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(d.feeders.first.name,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                    Text('${d.feeders.first.levelPct.toStringAsFixed(1)}%',
+                        style: TextStyle(color: p.texte2)),
+                  ])),
+                  const Icon(Icons.chevron_right),
+                ]),
+              ).stagger(5),
+            ],
             SectionTitle(context.t('to_watch')),
             if (watch.isEmpty)
               CarteDouce(

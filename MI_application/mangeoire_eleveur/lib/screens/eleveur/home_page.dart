@@ -31,20 +31,28 @@ class _HomeData {
   final List<Feeder> feeders;
 }
 
+Future<List<Feeder>> _loadFeeders(FarmApi api) async {
+  try {
+    return await api.feeders();
+  } catch (_) {
+    return const [];
+  }
+}
+
 Future<_HomeData> _loadHome() async {
   final api = FarmApi.instance;
+  final feedersFuture = _loadFeeders(api);
   try {
     final results = await Future.wait<Object>([
       api.cows(),
       api.appetiteByCow(),
       api.alerts(status: 'unread', limit: 100),
-      api.feeders(),
     ]);
     return _HomeData(
       cows: results[0] as List<Cow>,
       appetite: results[1] as Map<String, Appetite?>,
       unread: (results[2] as List<AlertItem>).length,
-      feeders: results[3] as List<Feeder>,
+      feeders: await feedersFuture,
     );
   } on ApiException catch (e) {
     if (e.statusCode == null) {
@@ -144,34 +152,30 @@ class HomePage extends StatelessWidget {
             ),
         ]),
       ).stagger(3),
-      SectionTitle(context.t('feeders')),
-      CarteDouce(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const FeedersPage()),
-        ),
-        child: d.feeders.isEmpty
-            ? Row(children: [
-                Ico('nav_feeder', taille: 30, couleur: p.primaire),
-                const SizedBox(width: 12),
-                Expanded(child: Text(context.t('no_feeders'), style: TextStyle(color: p.texte2))),
-              ])
-            : Row(children: [
-                Ico('nav_feeder', taille: 30, couleur: d.feeders.first.status == 'critical'
+      if (d.feeders.isNotEmpty) ...[
+        SectionTitle(context.t('feeders')),
+        CarteDouce(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FeedersPage()),
+          ),
+          child: Row(children: [
+            Ico('nav_feeder', taille: 30, couleur: d.feeders.first.status == 'critical'
                     ? p.danger
                     : d.feeders.first.status == 'low'
                         ? p.alerte
                         : p.succes),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(d.feeders.first.name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                  Text('${d.feeders.first.levelPct.toStringAsFixed(1)}%',
-                      style: TextStyle(color: p.texte2)),
-                ])),
-                const Icon(Icons.chevron_right),
-              ]),
-      ).stagger(3),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(d.feeders.first.name,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+              Text('${d.feeders.first.levelPct.toStringAsFixed(1)}%',
+                  style: TextStyle(color: p.texte2)),
+            ])),
+            const Icon(Icons.chevron_right),
+          ]),
+        ).stagger(3),
+      ],
       SectionTitle(context.t('to_watch')),
       if (watch.isEmpty)
         CarteDouce(

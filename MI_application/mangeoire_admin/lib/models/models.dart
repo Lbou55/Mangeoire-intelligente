@@ -188,7 +188,7 @@ class Feeder {
         capacityG: _num(j['capacity_g']),
         currentG: _num(j['current_quantity_g']),
         levelPct: _num(j['level_pct']).clamp(0, 100).toDouble(),
-        lastRefillAt: _date(j['last_refill_at']),
+        lastRefillAt: DateTime.tryParse(_str(j['last_refill_at']) ?? '')?.toLocal(),
         online: j['online'] == true,
         status: _str(j['status']) ?? 'critical',
       );

@@ -9,8 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mangeoire_admin/main.dart';
+import 'package:mangeoire_admin/models/models.dart';
 
 void main() {
+  test('Feeder.fromJson defaults missing and malformed fields', () {
+    final feeder = Feeder.fromJson({
+      'capacity_g': 'invalid',
+      'current_quantity_g': <String, dynamic>{},
+      'level_pct': null,
+      'last_refill_at': 'invalid date',
+      'online': 'true',
+      'status': 12,
+    });
+
+    expect(feeder.id, '');
+    expect(feeder.name, '');
+    expect(feeder.capacityG, 0);
+    expect(feeder.currentG, 0);
+    expect(feeder.levelPct, 0);
+    expect(feeder.lastRefillAt, isNull);
+    expect(feeder.online, isFalse);
+    expect(feeder.status, 'critical');
+  });
+
   testWidgets('App builds', (WidgetTester tester) async {
     await tester.pumpWidget(const MangeoireAdminApp(startDark: false));
     await tester.pump();
