@@ -117,6 +117,35 @@ class FarmApi {
       _list(await _api.get('/eleveurs')).map(Eleveur.fromJson).toList();
   Future<void> deleteEleveur(String id) => _api.delete('/eleveurs/$id');
 
+  // feeders
+  Future<List<Feeder>> feeders() async =>
+      _list(await _api.get('/feeders')).map(Feeder.fromJson).toList();
+  Future<Feeder> feeder(String id) async =>
+      Feeder.fromJson(Map<String, dynamic>.from(await _api.get('/feeders/$id') as Map));
+  Future<Feeder> createFeeder({
+    required String name,
+    required double capacityKg,
+  }) async =>
+      Feeder.fromJson(Map<String, dynamic>.from(await _api.post('/feeders', body: {
+        'name': name,
+        'capacity_g': (capacityKg * 1000).round(),
+        'current_quantity_g': 0,
+      }) as Map));
+  Future<Feeder> updateFeeder({
+    required String id,
+    required String name,
+    required double capacityKg,
+  }) async =>
+      Feeder.fromJson(Map<String, dynamic>.from(await _api.put('/feeders/$id', body: {
+        'name': name,
+        'capacity_g': (capacityKg * 1000).round(),
+      }) as Map));
+  Future<void> deleteFeeder(String id) => _api.delete('/feeders/$id');
+  Future<Feeder> refillFeeder(String id, {double? quantityKg}) async =>
+      Feeder.fromJson(Map<String, dynamic>.from(await _api.post('/feeders/$id/refill', body: {
+        if (quantityKg != null) 'quantity_g': (quantityKg * 1000).round(),
+      }) as Map));
+
   // invites
   Future<NewInvite> createInvite() async =>
       NewInvite.fromJson(Map<String, dynamic>.from(await _api.post('/invites') as Map));

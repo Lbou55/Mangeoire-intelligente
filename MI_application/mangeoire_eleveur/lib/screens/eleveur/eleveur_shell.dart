@@ -91,6 +91,8 @@ class _EleveurShellState extends State<EleveurShell> {
       showMsg(context, context.t('live_alert'));
     } else if (event['type'] == 'update') {
       setState(() => _reloadToken++);
+    } else if (event['type'] == 'feeder') {
+      setState(() => _reloadToken++);
     }
   }
 

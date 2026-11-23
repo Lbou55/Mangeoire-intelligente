@@ -1,3 +1,5 @@
+library;
+
 /// Data models (JSON from the server). Parsing is tolerant: a missing optional
 /// field never crashes a screen.
 
@@ -154,6 +156,41 @@ class NewInvite {
         code: _str(j['code']) ?? '',
         qrPayload: _str(j['qr_payload']) ?? _str(j['code']) ?? '',
         expiresAt: _date(j['expires_at']),
+      );
+}
+
+// ---------------------------------------------------------------- feeders
+
+class Feeder {
+  const Feeder({
+    required this.id,
+    required this.name,
+    required this.capacityG,
+    required this.currentG,
+    required this.levelPct,
+    required this.online,
+    required this.status,
+    this.lastRefillAt,
+  });
+
+  final String id;
+  final String name;
+  final double capacityG;
+  final double currentG;
+  final double levelPct;
+  final DateTime? lastRefillAt;
+  final bool online;
+  final String status;
+
+  factory Feeder.fromJson(Map<String, dynamic> j) => Feeder(
+        id: _str(j['id']) ?? '',
+        name: _str(j['name']) ?? '',
+        capacityG: _num(j['capacity_g']),
+        currentG: _num(j['current_quantity_g']),
+        levelPct: _num(j['level_pct']).clamp(0, 100).toDouble(),
+        lastRefillAt: _date(j['last_refill_at']),
+        online: j['online'] == true,
+        status: _str(j['status']) ?? 'critical',
       );
 }
 

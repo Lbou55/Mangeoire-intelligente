@@ -12,6 +12,7 @@ import '../../widgets/carte.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ico.dart';
 import 'cow_detail_page.dart';
+import 'feeders_page.dart';
 
 class _HomeData {
   const _HomeData({
@@ -20,12 +21,14 @@ class _HomeData {
     this.unread = 0,
     this.offline = false,
     this.saved = const [],
+    this.feeders = const [],
   });
   final List<Cow> cows;
   final Map<String, Appetite?> appetite;
   final int unread;
   final bool offline; // no network: [saved] comes from the phone (DataStore)
   final List<LastMeasure> saved;
+  final List<Feeder> feeders;
 }
 
 Future<_HomeData> _loadHome() async {
@@ -35,11 +38,13 @@ Future<_HomeData> _loadHome() async {
       api.cows(),
       api.appetiteByCow(),
       api.alerts(status: 'unread', limit: 100),
+      api.feeders(),
     ]);
     return _HomeData(
       cows: results[0] as List<Cow>,
       appetite: results[1] as Map<String, Appetite?>,
       unread: (results[2] as List<AlertItem>).length,
+      feeders: results[3] as List<Feeder>,
     );
   } on ApiException catch (e) {
     if (e.statusCode == null) {
@@ -138,6 +143,34 @@ class HomePage extends StatelessWidget {
               ]),
             ),
         ]),
+      ).stagger(3),
+      SectionTitle(context.t('feeders')),
+      CarteDouce(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FeedersPage()),
+        ),
+        child: d.feeders.isEmpty
+            ? Row(children: [
+                Ico('nav_feeder', taille: 30, couleur: p.primaire),
+                const SizedBox(width: 12),
+                Expanded(child: Text(context.t('no_feeders'), style: TextStyle(color: p.texte2))),
+              ])
+            : Row(children: [
+                Ico('nav_feeder', taille: 30, couleur: d.feeders.first.status == 'critical'
+                    ? p.danger
+                    : d.feeders.first.status == 'low'
+                        ? p.alerte
+                        : p.succes),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(d.feeders.first.name,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  Text('${d.feeders.first.levelPct.toStringAsFixed(1)}%',
+                      style: TextStyle(color: p.texte2)),
+                ])),
+                const Icon(Icons.chevron_right),
+              ]),
       ).stagger(3),
       SectionTitle(context.t('to_watch')),
       if (watch.isEmpty)

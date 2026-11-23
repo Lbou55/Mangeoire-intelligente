@@ -21,6 +21,15 @@ class AppConfig {
     );
   }
 
+  static Uri wsUri(String path, Map<String, String> query) {
+    final base = Uri.parse(apiBaseUrl);
+    return base.replace(
+      scheme: base.scheme == 'https' ? 'wss' : 'ws',
+      path: '${base.path.replaceAll(RegExp(r'/+$'), '')}$path',
+      queryParameters: query,
+    );
+  }
+
   static const Duration requestTimeout = Duration(seconds: 60);
   static const Duration wakingHintAfter = Duration(seconds: 5);
 }

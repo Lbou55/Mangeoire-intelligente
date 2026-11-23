@@ -1,7 +1,7 @@
 # Mangeoire Intelligente – Serveur (FastAPI + MongoDB Atlas)
 
 Base `farm` (collections : `superadmin`, `admins`, `eleveurs`, `invites`, `cow_profiles`,
-`alerts`, `subscription_requests`, `feed_dispatch`, `daily_summaries`, `realtime_readings`).
+`alerts`, `feeders`, `subscription_requests`, `feed_dispatch`, `daily_summaries`, `realtime_readings`).
 
 ## Rôles
 | Rôle | Ce qu'il peut faire |
@@ -27,6 +27,18 @@ copy .env.example .env      (puis remplir)
 uvicorn app.main:app --reload
 ```
 Docs interactives : `http://localhost:8000/docs`.
+
+## Mangeoires
+- `GET /feeders` — liste des mangeoires de la ferme (admin / éleveur)
+- `GET /feeders/{id}` — détail d'une mangeoire
+- `POST /feeders` — créer une mangeoire (admin)
+- `PUT /feeders/{id}` — modifier une mangeoire (admin)
+- `DELETE /feeders/{id}` — supprimer une mangeoire (admin)
+- `POST /feeders/{id}/refill` — remplir ou ajouter une quantité (admin)
+- `POST /ingest/feeder` — mise à jour matérielle avec `X-Ingest-Key`
+
+Initialiser l'exemple :
+`python -m scripts.seed_feeders <email_admin>`
 
 ## Mesures du Raspberry Pi
 - `POST /ingest` avec l'en-tête `X-Ingest-Key: <INGEST_KEY>` et le JSON `{"esp32": {...}, "model": {...}}`

@@ -12,7 +12,18 @@ from .errors import ApiError, install_handlers
 from .hub import hub
 from .ingest import consume_forever
 from .ingest import router as ingest_router
-from .routers import admins, ai, alerts, auth, data, eleveurs, invites, profiles, subscription
+from .routers import (
+    admins,
+    ai,
+    alerts,
+    auth,
+    data,
+    eleveurs,
+    feeders,
+    invites,
+    profiles,
+    subscription,
+)
 
 log = logging.getLogger("mangeoire")
 logging.basicConfig(level=logging.INFO)
@@ -42,9 +53,10 @@ install_handlers(app)
 for r in (
     auth.router, admins.router, admins.public_router, invites.router, eleveurs.router,
     profiles.router, alerts.router, data.router, subscription.router, ai.router,
-    ingest_router,
+    ingest_router, feeders.router,
 ):
     app.include_router(r)
+app.include_router(feeders.ingest_router)
 
 
 @app.get("/health")

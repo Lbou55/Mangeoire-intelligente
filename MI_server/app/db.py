@@ -34,6 +34,7 @@ async def ensure_indexes() -> None:
     await db.invites.create_index("admin_id")
     await db.cow_profiles.create_index("cow_id", unique=True)
     await db.cow_profiles.create_index("admin_id")
+    await db.feeders.create_index("admin_id")
     await db.alerts.create_index([("admin_id", ASCENDING), ("created_at", DESCENDING)])
     await db.daily_summaries.create_index(
         [("cow_id", ASCENDING), ("date", DESCENDING)], unique=True

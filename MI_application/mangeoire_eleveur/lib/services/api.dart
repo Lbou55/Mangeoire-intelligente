@@ -50,6 +50,11 @@ class FarmApi {
   static final FarmApi instance = FarmApi._();
   final ApiClient _api = ApiClient.instance;
 
+  Future<List<Feeder>> feeders() async =>
+      _list(await _api.get('/feeders')).map(Feeder.fromJson).toList();
+  Future<Feeder> feeder(String id) async =>
+      Feeder.fromJson(Map<String, dynamic>.from(await _api.get('/feeders/$id') as Map));
+
   Future<List<Cow>> cows() async =>
       _list(await _api.get('/profiles')).map(Cow.fromJson).toList();
 
